@@ -44,14 +44,11 @@ export function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" size="sm" className="text-sm font-medium">
-            Sign In
+          <Button asChild variant="ghost" size="sm" className="text-sm font-medium">
+            <Link href="/login">Sign In</Link>
           </Button>
-          <Button
-            size="sm"
-            className="bg-accent text-accent-foreground hover:bg-accent/90"
-          >
-            Get Started
+          <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
+            <Link href="/signup">Get Started</Link>
           </Button>
         </div>
 
@@ -84,14 +81,14 @@ export function Navbar() {
             </Link>
           ))}
           <div className="flex flex-col gap-2 pt-3">
-            <Button variant="outline" size="sm" className="w-full justify-center">
-              Sign In
+            <Button asChild variant="outline" size="sm" className="w-full justify-center">
+              <Link href="/login" onClick={() => setOpen(false)}>Sign In</Link>
             </Button>
-            <Button
+            <Button asChild
               size="sm"
               className="w-full justify-center bg-accent text-accent-foreground hover:bg-accent/90"
             >
-              Get Started
+              <Link href="/signup" onClick={() => setOpen(false)}>Get Started</Link>
             </Button>
           </div>
         </div>
