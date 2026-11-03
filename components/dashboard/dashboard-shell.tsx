@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -20,6 +20,7 @@ import {
   Truck,
   X,
   LogOut,
+  LoaderCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -86,6 +87,16 @@ function DashboardFrame({ children }: { children: ReactNode }) {
   const { unreadCount } = useDashboard();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
+  function handleNavigation(href: string) {
+    setMobileOpen(false);
+    if (pathname !== href) setPendingHref(href);
+  }
 
   const sidebar = (
     <div className="flex h-full flex-col bg-primary text-primary-foreground">
@@ -110,19 +121,22 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <div className="space-y-1">
               {section.items.map(({ label, href, icon: Icon, soon }) => {
                 const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(`${href}/`));
+                const isNavigating = pendingHref === href;
                 return (
                   <Link
                     key={href}
                     href={href}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={() => handleNavigation(href)}
+                    aria-disabled={isNavigating}
                     title={collapsed ? label : undefined}
                     className={cn(
                       'flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors',
                       active ? 'bg-primary-foreground text-primary font-semibold' : 'text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground',
-                      collapsed && 'justify-center px-0'
+                      collapsed && 'justify-center px-0',
+                      isNavigating && 'pointer-events-none opacity-70'
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
+                    {isNavigating ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> : <Icon className="h-4 w-4 shrink-0" />}
                     {!collapsed && <span className="min-w-0 flex-1 truncate">{label}</span>}
                     {!collapsed && soon && <span className="text-[10px] text-primary-foreground/45">SOON</span>}
                   </Link>
@@ -135,10 +149,12 @@ function DashboardFrame({ children }: { children: ReactNode }) {
       <div className="border-t border-primary-foreground/10 p-3">
         <Link
           href="/login"
+          onClick={() => handleNavigation('/login')}
+          aria-disabled={pendingHref === '/login'}
           title={collapsed ? 'Sign Out' : undefined}
-          className={cn('flex min-h-10 items-center gap-3 rounded-md px-3 text-sm text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground', collapsed && 'justify-center px-0')}
+          className={cn('flex min-h-10 items-center gap-3 rounded-md px-3 text-sm text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground', collapsed && 'justify-center px-0', pendingHref === '/login' && 'pointer-events-none opacity-70')}
         >
-          <LogOut className="h-4 w-4 shrink-0" />
+          {pendingHref === '/login' ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> : <LogOut className="h-4 w-4 shrink-0" />}
           {!collapsed && 'Sign Out'}
         </Link>
       </div>
@@ -174,8 +190,8 @@ function DashboardFrame({ children }: { children: ReactNode }) {
             <span className="text-sm font-semibold text-primary sm:hidden">StrongHaul Owner</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard/notifications" className="relative flex h-10 w-10 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-primary" aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}>
-              <Bell className="h-5 w-5" />
+            <Link href="/dashboard/notifications" onClick={() => handleNavigation('/dashboard/notifications')} aria-disabled={pendingHref === '/dashboard/notifications'} className={cn('relative flex h-10 w-10 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-primary', pendingHref === '/dashboard/notifications' && 'pointer-events-none opacity-70')} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}>
+              {pendingHref === '/dashboard/notifications' ? <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Bell className="h-5 w-5" />}
               {unreadCount > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent ring-2 ring-card" />}
             </Link>
             <div className="flex items-center gap-2 border-l border-border pl-3">
