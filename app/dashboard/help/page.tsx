@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
+import { useDeferredValue, useMemo, useState } from 'react';
+import { LoaderCircle, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const helpArticles = [
@@ -39,12 +39,14 @@ const helpArticles = [
 
 export default function HelpPage() {
   const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query);
+  const isSearching = deferredQuery !== query;
 
   const filteredArticles = useMemo(() => {
-    if (!query.trim()) return helpArticles;
-    const q = query.toLowerCase();
+    if (!deferredQuery.trim()) return helpArticles;
+    const q = deferredQuery.toLowerCase();
     return helpArticles.filter((article) => article.title.toLowerCase().includes(q) || article.content.toLowerCase().includes(q) || article.category.toLowerCase().includes(q));
-  }, [query]);
+  }, [deferredQuery]);
 
   return (
     <div className="space-y-6">
@@ -56,12 +58,13 @@ export default function HelpPage() {
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          {isSearching && <LoaderCircle className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-accent" aria-label="Searching articles" />}
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search the Help Center"
             aria-label="Search help articles"
-            className="h-12 pl-11"
+            className="h-12 pl-11 pr-11"
           />
         </div>
       </div>

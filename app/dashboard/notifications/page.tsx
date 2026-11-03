@@ -1,12 +1,29 @@
 'use client';
 
-import { Bell, CheckCheck, Inbox, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, CheckCheck, Inbox, LoaderCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDashboard } from '@/components/dashboard/dashboard-context';
 
 export default function NotificationsPage() {
   const { notifications, markRead, markAllRead } = useDashboard();
+  const [pendingNotificationId, setPendingNotificationId] = useState<string | null>(null);
+  const [isMarkingAllRead, setIsMarkingAllRead] = useState(false);
+
+  async function handleMarkRead(id: string) {
+    setPendingNotificationId(id);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    markRead(id);
+    setPendingNotificationId(null);
+  }
+
+  async function handleMarkAllRead() {
+    setIsMarkingAllRead(true);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    markAllRead();
+    setIsMarkingAllRead(false);
+  }
 
   return (
     <div className="space-y-6">
@@ -15,8 +32,8 @@ export default function NotificationsPage() {
           <p className="text-sm font-medium text-muted-foreground">Account updates</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-primary">Notifications</h1>
         </div>
-        <Button onClick={markAllRead} variant="outline" className="h-11 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-          <CheckCheck className="mr-2 h-4 w-4" /> Mark All as Read
+        <Button onClick={handleMarkAllRead} disabled={isMarkingAllRead} variant="outline" className="h-11 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+          {isMarkingAllRead ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Marking all as read...</> : <><CheckCheck className="mr-2 h-4 w-4" /> Mark All as Read</>}
         </Button>
       </div>
 
@@ -47,8 +64,8 @@ export default function NotificationsPage() {
                   </div>
                 </div>
                 {!notification.read && (
-                  <Button onClick={() => markRead(notification.id)} variant="outline" className="h-10 border-border hover:bg-secondary">
-                    Mark as Read
+                  <Button onClick={() => handleMarkRead(notification.id)} disabled={pendingNotificationId === notification.id} variant="outline" className="h-10 border-border hover:bg-secondary">
+                    {pendingNotificationId === notification.id ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Marking...</> : 'Mark as Read'}
                   </Button>
                 )}
               </div>

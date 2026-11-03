@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useDeferredValue, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   X,
   ArrowRight,
+  LoaderCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,11 +51,13 @@ export default function BrowsePage() {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['available']);
   const [maxDailyRate, setMaxDailyRate] = useState(2500);
   const [sortBy, setSortBy] = useState('distance');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const isFiltering = deferredSearchQuery !== searchQuery;
 
   const filtered = useMemo(() => {
     let results = allListings.filter((l) => {
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
+      if (deferredSearchQuery) {
+        const q = deferredSearchQuery.toLowerCase();
         if (
           !l.title.toLowerCase().includes(q) &&
           !l.manufacturer.toLowerCase().includes(q) &&
@@ -85,7 +88,7 @@ export default function BrowsePage() {
     });
 
     return results;
-  }, [searchQuery, selectedCategories, selectedStatuses, maxDailyRate, sortBy]);
+  }, [deferredSearchQuery, selectedCategories, selectedStatuses, maxDailyRate, sortBy]);
 
   const toggleCategory = (cat: EquipmentCategory) => {
     setSelectedCategories((prev) =>
@@ -114,7 +117,7 @@ export default function BrowsePage() {
           Browse Equipment
         </h1>
         <p className="mt-1 text-muted-foreground">
-          {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'} available
+          {isFiltering && <LoaderCircle className="mr-2 inline h-4 w-4 animate-spin text-accent" aria-label="Updating results" />} {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'} available
         </p>
       </div>
 
@@ -166,6 +169,7 @@ export default function BrowsePage() {
               <h3 className="text-sm font-semibold text-foreground">Filter Results</h3>
               <button
                 onClick={clearAll}
+                disabled={isFiltering}
                 className="text-xs font-medium text-accent hover:underline"
               >
                 Clear all
@@ -254,7 +258,7 @@ export default function BrowsePage() {
           {searchQuery && (
             <Badge variant="secondary" className="gap-1">
               &ldquo;{searchQuery}&rdquo;
-              <button onClick={() => setSearchQuery('')}>
+              <button onClick={() => setSearchQuery('')} disabled={isFiltering}>
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -277,8 +281,8 @@ export default function BrowsePage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Try adjusting your filters or search query.
           </p>
-          <Button variant="outline" onClick={clearAll} className="mt-4">
-            Clear all filters
+          <Button variant="outline" onClick={clearAll} disabled={isFiltering} className="mt-4">
+            {isFiltering ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Updating filters...</> : 'Clear all filters'}
           </Button>
         </div>
       ) : (

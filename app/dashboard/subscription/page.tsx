@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, CreditCard, ShieldCheck } from 'lucide-react';
+import { Check, CreditCard, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -14,6 +14,15 @@ const plans = [
 
 export default function SubscriptionPage() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
+  const [isUpdatingBilling, setIsUpdatingBilling] = useState(false);
+
+  async function handleBillingChange(nextBilling: 'monthly' | 'yearly') {
+    if (billing === nextBilling || isUpdatingBilling) return;
+    setIsUpdatingBilling(true);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    setBilling(nextBilling);
+    setIsUpdatingBilling(false);
+  }
 
   return (
     <div className="space-y-6">
@@ -23,11 +32,11 @@ export default function SubscriptionPage() {
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-primary">Subscription & Billing</h1>
         </div>
         <div className="inline-flex rounded-lg border border-border bg-card p-1">
-          <button type="button" onClick={() => setBilling('monthly')} className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${billing === 'monthly' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
-            Monthly
+          <button type="button" onClick={() => handleBillingChange('monthly')} disabled={isUpdatingBilling} className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${billing === 'monthly' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
+            {isUpdatingBilling && billing !== 'monthly' ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null} Monthly
           </button>
-          <button type="button" onClick={() => setBilling('yearly')} className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${billing === 'yearly' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
-            Yearly
+          <button type="button" onClick={() => handleBillingChange('yearly')} disabled={isUpdatingBilling} className={`inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${billing === 'yearly' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}>
+            {isUpdatingBilling && billing !== 'yearly' ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null} Yearly
           </button>
         </div>
       </div>

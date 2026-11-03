@@ -20,11 +20,24 @@ import {
   Truck,
   X,
   LogOut,
+  type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DashboardProvider, useDashboard } from './dashboard-context';
 
-const sections = [
+type DashboardNavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  soon?: boolean;
+};
+
+type DashboardNavSection = {
+  title: string;
+  items: DashboardNavItem[];
+};
+
+const sections: DashboardNavSection[] = [
   {
     title: 'Overview',
     items: [{ label: 'Dashboard Overview', href: '/dashboard', icon: Gauge }],

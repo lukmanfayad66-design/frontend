@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Search, Wrench } from 'lucide-react';
+import { ArrowRight, CheckCircle2, LoaderCircle, Search, Wrench } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,10 +17,14 @@ const roles = [
 export default function SignupPage() {
   const [role, setRole] = useState('seeker');
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 350));
     setSubmitted(true);
+    setIsSubmitting(false);
   }
 
   return (
@@ -74,8 +78,8 @@ export default function SignupPage() {
           <Label htmlFor="signup-password">Create a password</Label>
           <Input id="signup-password" name="password" type="password" autoComplete="new-password" placeholder="At least 8 characters" minLength={8} required />
         </div>
-        <Button type="submit" className="h-12 w-full bg-accent text-base font-semibold text-accent-foreground hover:bg-accent/90">
-          Create account <ArrowRight className="ml-2 h-4 w-4" />
+        <Button type="submit" disabled={isSubmitting} className="h-12 w-full bg-accent text-base font-semibold text-accent-foreground hover:bg-accent/90">
+          {isSubmitting ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Creating account...</> : <>Create account <ArrowRight className="ml-2 h-4 w-4" /></>}
         </Button>
         {submitted && (
           <p role="status" className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-3 text-sm text-success">

@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Eye, PencilLine, PowerOff, Plus, SearchX } from 'lucide-react';
+import { useState } from 'react';
+import { Eye, LoaderCircle, PencilLine, PowerOff, Plus, SearchX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -41,6 +42,13 @@ const statusStyles: Record<string, string> = {
 
 export default function DashboardEquipmentPage() {
   const emptyState = sampleEquipment.length === 0;
+  const [pendingDeactivationId, setPendingDeactivationId] = useState<string | null>(null);
+
+  async function handleDeactivate(id: string) {
+    setPendingDeactivationId(id);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    setPendingDeactivationId(null);
+  }
 
   return (
     <div className="space-y-6">
@@ -99,10 +107,8 @@ export default function DashboardEquipmentPage() {
                       <PencilLine className="mr-2 h-4 w-4" /> Edit Listing
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" className="h-10 border-border text-muted-foreground hover:bg-secondary">
-                    <Link href="/dashboard/equipment">
-                      <PowerOff className="mr-2 h-4 w-4" /> Deactivate Listing
-                    </Link>
+                  <Button onClick={() => handleDeactivate(item.id)} disabled={pendingDeactivationId === item.id} variant="outline" className="h-10 border-border text-muted-foreground hover:bg-secondary">
+                    {pendingDeactivationId === item.id ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Deactivating...</> : <><PowerOff className="mr-2 h-4 w-4" /> Deactivate Listing</>}
                   </Button>
                 </div>
               </div>
