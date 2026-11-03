@@ -7,13 +7,13 @@ import { Navbar } from '@/components/navbar';
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isDashboard = pathname.startsWith('/dashboard');
+  const isWorkspace = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
 
   return (
     <div className="flex min-h-screen flex-col">
-      {!isDashboard && <Navbar />}
+      {!isWorkspace && <Navbar />}
       <main className="flex-1">{children}</main>
-      {!isDashboard && <Footer />}
+      {!isWorkspace && <Footer />}
     </div>
   );
 }

@@ -41,13 +41,13 @@ type DashboardNavSection = {
 const sections: DashboardNavSection[] = [
   {
     title: 'Overview',
-    items: [{ label: 'Dashboard Overview', href: '/dashboard', icon: Gauge }],
+    items: [{ label: 'Dashboard Overview', href: '/dashboard', icon: Gauge, soon: true }],
   },
   {
     title: 'Equipment Management',
     items: [
-      { label: 'My Equipment', href: '/dashboard/equipment', icon: Package },
-      { label: 'List Equipment', href: '/dashboard/list-equipment', icon: Plus },
+      { label: 'My Equipment', href: '/dashboard/equipment', icon: Package, soon: true },
+      { label: 'List Equipment', href: '/dashboard/list-equipment', icon: Plus, soon: true },
     ],
   },
   {
@@ -60,16 +60,16 @@ const sections: DashboardNavSection[] = [
   {
     title: 'Account',
     items: [
-      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
-      { label: 'Subscription & Billing', href: '/dashboard/subscription', icon: CreditCard },
-      { label: 'Account Settings', href: '/dashboard/settings', icon: Settings },
+      { label: 'Notifications', href: '/dashboard/notifications', icon: Bell, soon: true },
+      { label: 'Subscription & Billing', href: '/dashboard/subscription', icon: CreditCard, soon: true },
+      { label: 'Account Settings', href: '/dashboard/settings', icon: Settings, soon: true },
     ],
   },
   {
     title: 'Help & Support',
     items: [
-      { label: 'Support', href: '/dashboard/support', icon: Headset },
-      { label: 'Help Center', href: '/dashboard/help', icon: BookOpen },
+      { label: 'Support', href: '/dashboard/support', icon: Headset, soon: true },
+      { label: 'Help Center', href: '/dashboard/help', icon: BookOpen, soon: true },
     ],
   },
 ];
