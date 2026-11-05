@@ -371,7 +371,7 @@ function BrowseCard({ listing }: { listing: Listing }) {
             variant="outline"
             className="border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground"
           >
-            View Details
+            Details
             <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Button>
         </div>
