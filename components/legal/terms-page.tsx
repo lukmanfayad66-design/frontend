@@ -268,22 +268,29 @@ export function TermsPage() {
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleSections = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visibleSections[0]) setActiveSection(visibleSections[0].target.id);
-      },
-      { rootMargin: '-96px 0px -72% 0px', threshold: 0 }
-    );
+    function updateActiveSection() {
+      let currentSection = termsSections[0].id;
 
-    for (const section of termsSections) {
-      const element = document.getElementById(section.id);
-      if (element) observer.observe(element);
+      for (const section of termsSections) {
+        const element = document.getElementById(section.id);
+        if (element && element.getBoundingClientRect().top <= 160) {
+          currentSection = section.id;
+        } else {
+          break;
+        }
+      }
+
+      setActiveSection(currentSection);
     }
 
-    return () => observer.disconnect();
+    updateActiveSection();
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    window.addEventListener('hashchange', updateActiveSection);
+
+    return () => {
+      window.removeEventListener('scroll', updateActiveSection);
+      window.removeEventListener('hashchange', updateActiveSection);
+    };
   }, []);
 
   function handleTocClick(sectionId: string) {
