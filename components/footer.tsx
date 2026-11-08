@@ -25,6 +25,7 @@ const footerSections = [
       { label: 'Help Center', href: '/help' },
       { label: 'Safety', href: '/safety' },
       { label: 'Terms of Service', href: '/terms' },
+      { label: 'Cookie Policy', href: '/cookies' },
     ],
   },
 ];
@@ -96,6 +97,9 @@ export function Footer() {
             </Link>
             <Link href="/terms" className="transition-colors hover:text-accent">
               Terms
+            </Link>
+            <Link href="/cookies" className="transition-colors hover:text-accent">
+              Cookies
             </Link>
           </div>
         </div>
