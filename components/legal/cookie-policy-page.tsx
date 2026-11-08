@@ -13,7 +13,7 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     content: (
       <>
         <p>Cookies are small data files that a website or a service it uses may store in a browser. Similar technologies can store or access information through browser or device storage.</p>
-        <p>This Cookie Policy explains the cookie behavior observed during local checks of the current StrongHaul frontend. It should not be read as a guarantee about every production browser, hosting configuration or third-party service. StrongHaul should verify the deployed site and update this policy if its behavior changes.</p>
+        <p>This Cookie Policy explains cookie behavior in the connected authentication code and behavior observed during local checks. It is not a guarantee about every production browser, hosting configuration or third-party service. StrongHaul should verify the deployed site and update this policy if its behavior changes.</p>
       </>
     ),
   },
@@ -22,7 +22,10 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Cookies Currently Used',
     content: (
       <>
-        <p>When a user signs in, StrongHaul’s authentication backend sets two cookies: <code>refresh_token</code> and <code>csrf_token</code>. The refresh cookie is HttpOnly; the CSRF cookie is readable by the browser and is used to submit the CSRF header for refresh and logout requests. Both use SameSite=Strict and the <code>/auth</code> path. The configured lifetime defaults to 14 days. The Secure attribute depends on configuration; production settings require Secure cookies. The access token is held in frontend memory, not in a cookie.</p>
+        <p>When a user signs in, StrongHaul’s authentication backend sets two cookies on the API host: <code>refresh_token</code> and <code>csrf_token</code>. The refresh cookie is HttpOnly so frontend JavaScript cannot read the long-lived refresh credential; the browser sends it with eligible authentication requests. The CSRF cookie is intentionally readable by the frontend so it can copy the value into the <code>X-CSRF-Token</code> request header required for refresh and logout.</p>
+        <p>Both cookies use <code>SameSite=Strict</code>, the <code>/auth</code> path and the same configured <code>Max-Age</code>, which defaults to 14 days for both the refresh and CSRF cookies. The backend does not set a <code>Domain</code> attribute, so each cookie is host-only to the API host that sets it. The refresh cookie has <code>HttpOnly</code>; the CSRF cookie does not. No separate absolute expiry or CSRF-specific lifetime is configured in the inspected code.</p>
+        <p>The inspected local backend configuration has <code>SECURE_COOKIES=false</code>. Production configuration validation requires <code>SECURE_COOKIES=true</code>, but StrongHaul’s deployed production setting was not available for verification. The access JWT is short-lived (10 minutes by default), returned by the backend and held in frontend memory; it is not stored in a cookie or local storage.</p>
+        <p>On session refresh, the backend validates the CSRF header and refresh cookie, revokes the existing refresh session, creates a replacement, and rotates both cookies. The frontend calls the CSRF endpoint to obtain the readable CSRF value; it never reads the HttpOnly refresh token.</p>
         <p>A Pexels-hosted image response was also observed setting the third-party Cloudflare <code>__cf_bm</code> cookie. The response marked it HttpOnly, Secure and Partitioned. Cloudflare describes it as necessary for its bot-protection products. It is not StrongHaul analytics and is controlled by the third-party service. No expiry or retention period is stated because StrongHaul has not independently confirmed one for the observed provider configuration.</p>
         <p>Cookie behavior depends on the browser and deployment. The checks covered local development and a remote image response; production hostnames, secure settings and provider configuration still need verification.</p>
       </>
@@ -33,8 +36,8 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'First-Party Cookies',
     content: (
       <>
-        <p>The StrongHaul authentication API sets the <code>refresh_token</code> and <code>csrf_token</code> cookies described above after sign-in. They are scoped to the API host and <code>/auth</code> path. In a same-site deployment they support account sessions and CSRF protection. The local frontend page itself did not set a cookie in the tested response; that does not mean the backend authentication cookies are absent.</p>
-        <p>The old frontend demo account value in local storage is removed when the auth provider initializes. Local storage is not a cookie. Production domains and responses must still be checked to verify cookie scope and flags.</p>
+        <p>The StrongHaul authentication API sets the <code>refresh_token</code> and <code>csrf_token</code> cookies described above after sign-in. They are host-only to the API host and scoped to <code>/auth</code>; no Domain attribute is configured. In a same-site deployment they support account sessions and CSRF protection. The local frontend page itself does not set these cookies; the backend API response does.</p>
+        <p>The old frontend demo account value in local storage is removed when the auth provider initializes. Local storage is not a cookie. Production domains, HTTPS and cookie flags must still be verified against the deployed configuration.</p>
       </>
     ),
   },
@@ -63,7 +66,7 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Managing Cookies',
     content: (
       <>
-        <p>You can usually review, delete or block cookies through your browser’s privacy or site-settings controls. Blocking or deleting the StrongHaul authentication cookies will prevent refresh-session restoration and may sign you out. Blocking third-party cookies may affect content or services delivered by external providers.</p>
+        <p>You can usually review, delete or block cookies through your browser’s privacy or site-settings controls. Blocking or deleting the HttpOnly refresh cookie prevents session refresh and may sign you out; blocking the readable CSRF cookie prevents the frontend from completing refresh or logout requests. Blocking third-party cookies may affect content or services delivered by external providers.</p>
         <p>StrongHaul does not currently provide a consent-management interface or cookie-preference panel. No non-essential analytics or advertising cookies were identified in the frontend. Whether additional consent controls are legally required for the deployed services should be confirmed for applicable jurisdictions before launch.</p>
       </>
     ),

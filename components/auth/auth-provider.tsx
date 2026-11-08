@@ -33,9 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [status, setStatus] = useState<AuthStatus>('loading');
   const restorePromise = useRef<ReturnType<typeof refreshAuthSession> | null>(null);
+  const operationVersion = useRef(0);
 
   useEffect(() => {
     let active = true;
+    const version = operationVersion.current;
     try {
       window.localStorage.removeItem('stronghaul-demo-auth');
     } catch {
@@ -48,14 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     restorePromise.current
       .then((session) => {
-        if (!active) return;
+        if (!active || operationVersion.current !== version) return;
         setUser(session?.user ?? null);
         setAccessToken(session?.accessToken ?? null);
         setExpiresAt(session ? Date.now() + session.expiresIn * 1000 : null);
         setStatus(session ? 'authenticated' : 'unauthenticated');
       })
       .catch(() => {
-        if (!active) return;
+        if (!active || operationVersion.current !== version) return;
         setUser(null);
         setAccessToken(null);
         setExpiresAt(null);
@@ -71,16 +73,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!accessToken || !expiresAt) return;
 
     let active = true;
+    const version = operationVersion.current;
     const timeout = window.setTimeout(async () => {
       try {
         const session = await refreshAuthSession();
-        if (!active) return;
+        if (!active || operationVersion.current !== version) return;
         setUser(session?.user ?? null);
         setAccessToken(session?.accessToken ?? null);
         setExpiresAt(session ? Date.now() + session.expiresIn * 1000 : null);
         setStatus(session ? 'authenticated' : 'unauthenticated');
       } catch {
-        if (!active) return;
+        if (!active || operationVersion.current !== version) return;
         setUser(null);
         setAccessToken(null);
         setExpiresAt(null);
@@ -95,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [accessToken, expiresAt]);
 
   async function signIn(email: string, password: string) {
+    operationVersion.current += 1;
     setStatus('loading');
     try {
       const session = await signInRequest(email, password);
@@ -113,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
+    operationVersion.current += 1;
     await signOutRequest();
     setUser(null);
     setAccessToken(null);
