@@ -1,52 +1,26 @@
-'use client';
-
-import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, LoaderCircle, Mail } from 'lucide-react';
+import { ArrowLeft, MailWarning } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export default function ForgotPasswordPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    setSubmitted(true);
-    setIsSubmitting(false);
-  }
-
   return (
     <AuthShell
       eyebrow="Account recovery"
-      title="Reset your password"
-      description="Enter the email associated with your account and we’ll help you get back in."
+      title="Password reset unavailable"
+      description="Password reset is not connected yet. StrongHaul does not currently have a password-reset endpoint or email delivery service."
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10">
-          <Mail className="h-7 w-7 text-accent" />
+      <div className="space-y-5">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-warning/10">
+          <MailWarning className="h-7 w-7 text-warning" />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="forgot-email">Email address</Label>
-          <Input id="forgot-email" name="email" type="email" autoComplete="email" placeholder="you@company.com" required />
-        </div>
-        <Button type="submit" disabled={isSubmitting} className="h-12 w-full bg-accent text-base font-semibold text-accent-foreground hover:bg-accent/90">
-          {isSubmitting ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Sending reset link...</> : <>Send reset link <ArrowRight className="ml-2 h-4 w-4" /></>}
+        <p className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm leading-6 text-foreground">
+          No reset email has been sent. If you cannot access your account, use the Help Center for general guidance; its support form is not connected yet.
+        </p>
+        <Button asChild variant="outline" className="w-full">
+          <Link href="/login"><ArrowLeft className="mr-2 h-4 w-4" /> Back to sign in</Link>
         </Button>
-        {submitted && (
-          <p role="status" className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-3 text-sm text-success">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            Demo mode: if this email exists, reset instructions would be sent.
-          </p>
-        )}
-        <Link href="/login" className="flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Back to sign in
-        </Link>
-      </form>
+      </div>
     </AuthShell>
   );
 }

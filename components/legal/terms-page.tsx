@@ -35,7 +35,7 @@ const termsSections: { id: string; title: string; content: ReactNode }[] = [
       <>
         <p>You must have the legal capacity to enter into binding agreements under the laws that apply to you. A person under the applicable legal age may use StrongHaul only with legally valid authorization and where permitted by law.</p>
         <p>When registering, provide accurate, current and complete information, and update it if it changes. Do not impersonate another person or business, or create an account using information you are not authorized to use.</p>
-        <p>You are responsible for protecting your account credentials and for activity carried out through your account, subject to applicable law. Do not share your password. Notify StrongHaul promptly if you suspect unauthorized access or account use. The current account features are frontend demonstrations and do not provide production authentication or account security.</p>
+        <p>You are responsible for protecting your account credentials and for activity carried out through your account, subject to applicable law. Do not share your password. Notify StrongHaul promptly if you suspect unauthorized access or account use. StrongHaul currently supports email-and-password registration and sign-in; email verification and password reset are not implemented. Equipment listing, booking, payments and support workflows remain separate and may not be available through the current frontend.</p>
       </>
     ),
   },

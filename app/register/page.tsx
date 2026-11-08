@@ -1,14 +1,15 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, CheckCircle2, LoaderCircle } from 'lucide-react';
+import { ArrowRight, LoaderCircle } from 'lucide-react';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { setStoredUser, type AccountType } from '@/lib/auth-demo';
+import { registerAccount, type AccountType } from '@/lib/auth-client';
 
 const accountTypes: { value: AccountType; label: string; description: string }[] = [
   { value: 'owner', label: 'Equipment Owner', description: 'List and manage equipment rentals.' },
@@ -26,7 +27,6 @@ export default function RegisterPage() {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,29 +42,26 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setError('Use at least 8 characters for your password.');
+    if (password.length < 12) {
+      setError('Use at least 12 characters for your password.');
       return;
     }
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
-    const user = {
-      id: `${accountType}-${Date.now()}`,
-      fullName: fullName.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      password,
-      accountType,
-      marketingConsent: accountType === 'renter' ? marketingConsent : false,
-    };
-
-    setStoredUser(user);
-    setSubmitted(true);
-    setIsSubmitting(false);
-
-    router.push(accountType === 'owner' ? '/dashboard' : '/renter/dashboard');
+    try {
+      await registerAccount({
+        full_name: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        password,
+        account_type: accountType,
+        marketing_consent: accountType === 'renter' && marketingConsent,
+      });
+      router.push('/login?registered=1');
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Registration failed. Please try again.');
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -116,11 +113,11 @@ export default function RegisterPage() {
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="register-password">Password</Label>
-            <Input id="register-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" minLength={8} required />
+            <Input id="register-password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 12 characters" minLength={12} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="register-confirm-password">Confirm password</Label>
-            <Input id="register-confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat your password" minLength={8} required />
+            <Input id="register-confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat your password" minLength={12} required />
           </div>
         </div>
 
@@ -144,16 +141,9 @@ export default function RegisterPage() {
           {isSubmitting ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Creating account...</> : <>Create account <ArrowRight className="ml-2 h-4 w-4" /></>}
         </Button>
 
-        {submitted && (
-          <p role="status" className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-3 text-sm text-success">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            Demo mode: your account was created successfully.
-          </p>
-        )}
-
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <a href="/login" className="font-semibold text-accent hover:underline">Sign in</a>
+          <Link href="/login" className="font-semibold text-accent hover:underline">Sign in</Link>
         </p>
       </form>
     </AuthShell>

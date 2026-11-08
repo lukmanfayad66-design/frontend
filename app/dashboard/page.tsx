@@ -5,6 +5,7 @@ import { ArrowRight, Bell, Boxes, CircleDollarSign, Gauge, ShieldCheck, Truck } 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDashboard } from '@/components/dashboard/dashboard-context';
+import { useAuth } from '@/components/auth/auth-provider';
 
 const stats = [
   { label: 'Total equipment listings', value: '12', icon: Boxes },
@@ -15,14 +16,16 @@ const stats = [
 
 export default function DashboardOverviewPage() {
   const { notifications } = useDashboard();
+  const { user } = useAuth();
   const recentNotifications = notifications.slice(0, 3);
+  const firstName = user?.full_name.trim().split(/\s+/)[0] || 'there';
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-muted-foreground">Welcome back</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-primary">Kofi, here is your equipment performance</h1>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-primary">{firstName}, here is your equipment performance</h1>
         </div>
         <Button asChild className="h-11 bg-accent text-accent-foreground hover:bg-accent/90">
           <Link href="/browse">

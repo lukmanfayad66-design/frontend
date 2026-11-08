@@ -13,7 +13,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     content: (
       <>
         <p>StrongHaul is an equipment rental marketplace that connects equipment owners with people looking to rent construction equipment, heavy machinery and trucks. The platform initially focuses on Ghana and is intended to support expansion into other markets.</p>
-        <p>This notice describes information handled by the frontend currently present in this application and identifies practices that have not yet been implemented or verified. It is not a complete production privacy notice while backend, hosting and legal details remain unresolved.</p>
+        <p>This notice describes information handled by the connected authentication frontend and backend, and identifies marketplace functions that remain unimplemented or unverified. Hosting, operational practices and legal details still require confirmation before this is a complete production privacy notice.</p>
         <p>StrongHaul should identify the legal entity that determines the purposes and means of processing personal data and confirm its controller and processor responsibilities under Ghana’s Data Protection Act, 2012 (Act 843) and other applicable law. This application does not establish the entity’s legal identity or Data Protection Commission registration status.</p>
       </>
     ),
@@ -23,8 +23,8 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Information We Collect',
     content: (
       <>
-        <p>The current frontend does not send registration, enquiry, booking, listing, newsletter, support or safety-report form entries to a StrongHaul server. Those forms either store demo account data only in your browser or validate the fields locally without sending or saving them.</p>
-        <p>Information entered into demo registration includes full name, email address, phone number, account type, an optional renter marketing-consent choice and password. The demo stores these values in browser local storage. The password is stored as plain text and is not protected by a production authentication service. <strong>Do not use real personal information or a password you use elsewhere in this demo.</strong></p>
+        <p>Registration and authentication forms send account information to StrongHaul’s configured authentication API. Registration collects full name, email address, phone number, account type, password and the renter’s optional marketing-consent selection. The backend stores profile fields and a password hash. Equipment listing, renter enquiry/booking, newsletter, support and safety-report forms remain frontend-only and do not send or store their submissions.</p>
+        <p>Passwords are hashed with Argon2 by the backend and are not intentionally saved in frontend local storage. Authentication uses a short-lived access token held in memory and refresh-session cookies. The backend stores a hash of each refresh token with its account, creation, expiry and revocation information.</p>
         <p>The homepage may ask your browser for location permission. If allowed, the frontend reads device coordinates to estimate a nearby Ghanaian city in the browser; the StrongHaul application does not send or persist those coordinates. Your browser or device location provider may process a location request to provide the coordinates under its own settings and privacy terms; StrongHaul has not identified or verified that provider. A selected or detected city and equipment category may be placed in the Browse page URL when you search.</p>
         <p>When the site or remote image files load, hosting infrastructure and image hosts may process technical request information such as IP address, request time, URL and browser headers. The exact collection and retention depend on the deployed infrastructure and providers and must be confirmed before launch.</p>
       </>
@@ -35,9 +35,9 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Account and Registration Information',
     content: (
       <>
-        <p>The registration interface asks for your full name, email, phone number, account type and password. Renters can optionally select a marketing-consent checkbox; it is unchecked by default. In the current demo, these values are stored together in local storage on the device and browser used to register.</p>
-        <p>The demo login reads that local record. It does not create or authenticate a server-side account. The password is stored in plain text, so this implementation is not appropriate for real account credentials and must be replaced with secure authentication before public launch.</p>
-        <p>The forgot-password screen only displays a simulated result. It does not send a reset email or transmit the entered email address to StrongHaul.</p>
+        <p>Registration collects full name, email address, phone number, account type (equipment owner or renter), and password. Renters may optionally consent to marketplace updates and promotional content; the checkbox is unchecked by default. The backend stores the account profile and consent selection. It stores a password hash generated with Argon2, not the submitted password.</p>
+        <p>Sign-in currently uses email and password. On successful sign-in, the backend issues an access token for in-memory frontend use and sets refresh-session cookies. The backend database stores the account and hashed refresh-session records. Account email verification is not implemented, and there is no password-reset endpoint or email delivery provider.</p>
+        <p>The frontend removes the old demo auth record from local storage when it initializes. Do not rely on the former demo password or account data as an account in the connected service.</p>
       </>
     ),
   },
@@ -46,7 +46,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Equipment Owner Information',
     content: (
       <>
-        <p>Owner registration currently uses the account information described above. The dashboard contains sample owner and equipment information for demonstration.</p>
+        <p>Owner registration stores the account profile described above, including the selected owner role and phone number. The role is used to direct the account to the owner workspace. The dashboard still contains sample equipment and business information for demonstration.</p>
         <p>A working equipment listing submission form is not present. Therefore, this frontend does not currently collect equipment-owner business details, owner-submitted equipment specifications, pricing, availability or photographs through a listing workflow. If a listing service is introduced, StrongHaul should disclose the fields, purposes, visibility and retention before collecting them.</p>
       </>
     ),
@@ -56,7 +56,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Renter Information',
     content: (
       <>
-        <p>Visitors can browse the sample equipment catalogue without registering. Renter registration uses the same name, email, phone and password fields as other accounts, plus the optional marketing-consent choice.</p>
+        <p>Visitors can browse the sample equipment catalogue without registering. Renter registration uses the same profile fields, plus the optional marketing-consent choice described above. The backend stores this consent selection but no marketing message delivery is implemented.</p>
         <p>The current application has no working renter enquiry or booking submission flow. It therefore does not collect rental requests, booking details or renter messages through those features. Listing cards and dashboards contain static demonstration data, not a record of actual users or rentals.</p>
       </>
     ),
@@ -86,7 +86,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Device and Technical Information',
     content: (
       <>
-        <p>The application does not contain code-defined analytics or a device-fingerprinting feature. The homepage can request browser geolocation permission and process coordinates locally to estimate a city. If you choose a city, that city and any selected category can be included in the Browse URL; precise coordinates are not put in that URL by the app.</p>
+        <p>The application does not contain code-defined analytics or a device-fingerprinting feature. The homepage can request browser geolocation permission and process coordinates locally to estimate a city. If you choose a city, that city and any selected category can be included in the Browse URL; precise coordinates are not sent to the authentication backend by the app. The backend’s rate limiter uses the request’s client IP address to apply request limits; its storage depends on deployment configuration.</p>
         <p>The repository includes a Netlify Next.js build adapter, but the actual production host, CDN, access logs, error monitoring, log fields and retention periods were not verified. Providers used to deliver the site may process technical request information to operate or protect the service. StrongHaul must confirm the deployed setup and update this notice accordingly.</p>
         <p>Some images are loaded directly from Pexels and Unsplash image domains. A request to those image hosts may expose technical connection information, including your IP address and request headers, to the relevant host. StrongHaul has not verified those providers’ current retention, processing locations or terms for this deployment.</p>
       </>
@@ -97,8 +97,8 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'How We Use Personal Information',
     content: (
       <>
-        <p>In the current frontend, registration data is used locally to demonstrate account selection and navigation. Browser geolocation, if permitted, is used locally to estimate a city for the homepage search. Search filters, FAQ searches and form validation operate in browser state.</p>
-        <p>Newsletter, Help Center support and safety-report forms currently validate input only; they do not send or store submissions. Notifications and dashboard details are sample content. There is no implemented mailing, notification, analytics, advertising, enquiry or booking integration identified in the application.</p>
+        <p>Account information is used by the authentication backend to create accounts, verify credentials, maintain refresh sessions and return the user profile and role for dashboard routing. Browser geolocation, if permitted, is used locally to estimate a city for the homepage search. Search filters, FAQ searches and form validation operate in browser state.</p>
+        <p>Newsletter, Help Center support and safety-report forms currently validate input only; they do not send or store submissions. Notifications and equipment dashboards contain sample content. There is no implemented marketing delivery, notification, analytics, advertising, equipment enquiry or booking integration identified in the application.</p>
         <p>Before production launch, StrongHaul should document each actual purpose and lawful basis, collect only necessary information, keep it accurate, and ensure the purpose is communicated clearly in accordance with Act 843 and other applicable law.</p>
       </>
     ),
@@ -108,7 +108,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'How We Share Personal Information',
     content: (
       <>
-        <p>The current demo does not transmit registration data to StrongHaul servers or share it with equipment owners or renters through an enquiry or booking workflow. The app code does not show a personal-information sale or a configured analytics, authentication, notification or advertising provider.</p>
+        <p>Account registration and authentication data is sent to and stored by the connected StrongHaul authentication backend. Account information is not currently shared with equipment owners or renters through an enquiry or booking workflow because those features are not connected. The app code does not show a personal-information sale or a configured third-party analytics, notification or advertising provider.</p>
         <p>Technical information may be processed by the production hosting or CDN provider once deployed, and by remote image hosts when a browser requests their images. Actual providers, instructions, contracts, locations and log retention have not been verified.</p>
         <p>If owner/renter contact features, hosting processors or other integrations are introduced, information should be shared only as needed for a stated purpose, protected by appropriate safeguards and described here. Information may also need to be disclosed where required by law or a valid legal process, subject to applicable requirements.</p>
       </>
@@ -119,7 +119,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Third-Party Services and Integrations',
     content: (
       <>
-        <p>The project includes a Supabase JavaScript package in its dependencies, but no Supabase client, authentication provider, database model, API route or configured Supabase environment was found in the application code inspected. A dependency alone does not mean StrongHaul currently sends data to Supabase.</p>
+        <p>The frontend connects to StrongHaul’s FastAPI authentication backend. That backend uses SQLAlchemy models for accounts and refresh sessions, Argon2 password hashing and JWT access tokens. The backend settings default to SQLite for local development and require PostgreSQL, secure cookies and shared rate-limit storage for production; the actual deployment configuration has not been verified. A Supabase package is present in frontend dependencies, but no Supabase client or data connection is used in the inspected code.</p>
         <p>No analytics, advertising, notification or email delivery integration was found. The repository is configured with a Netlify Next.js build plugin; whether the live service is hosted by Netlify and which associated services process production requests must be verified by the operator.</p>
         <p>The current interface loads some image assets directly from Pexels and Unsplash. Third-party providers may process connection data when those assets load. StrongHaul should review provider terms, privacy notices, transfer arrangements and whether locally hosting assets is preferable before launch.</p>
       </>
@@ -130,9 +130,9 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Cookies and Tracking Technologies',
     content: (
       <>
-        <p>No application code using cookies, session storage, analytics cookies or advertising trackers was identified in the current frontend. Demo account state is stored in local storage, which is browser storage but is not a cookie.</p>
+        <p>The authentication backend sets <code>refresh_token</code> and <code>csrf_token</code> cookies when a user signs in. The refresh cookie is HttpOnly; the CSRF cookie is readable by the browser so it can be returned in a request header. Both use SameSite=Strict and the <code>/auth</code> path. Their configured lifetime defaults to 14 days. Secure is enabled by production configuration; it is disabled by the local development settings. The frontend keeps the short-lived access token in memory.</p>
         <p>During a local check, a response from the Pexels image host set a third-party Cloudflare <code>__cf_bm</code> cookie with Secure, HttpOnly and Partitioned attributes. Cloudflare describes this cookie as necessary for its bot-protection products. It is set by the image-delivery service, not by StrongHaul, and the StrongHaul frontend does not read or control it. Whether a browser accepts or sends it depends on browser privacy settings. StrongHaul should recheck the deployed image host and applicable Ghanaian requirements before launch.</p>
-        <p>If introduced and actually used, cookies or similar technologies may support authentication, security, user preferences or analytics. The live deployment must be checked to determine whether any are present, who sets them and what purposes they serve. No analytics or advertising cookies are identified as currently implemented. Read the <Link href="/cookies" className="font-semibold text-accent underline underline-offset-4 hover:text-primary">Cookie Policy</Link> for current cookie details.</p>
+        <p>No analytics cookies, advertising trackers or consent manager were identified in the current frontend. The legacy demo account record is cleared from local storage when the auth provider initializes; local storage itself is not a cookie. Read the <Link href="/cookies" className="font-semibold text-accent underline underline-offset-4 hover:text-primary">Cookie Policy</Link> for current cookie details.</p>
       </>
     ),
   },
@@ -141,9 +141,8 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Data Storage and Security',
     content: (
       <>
-        <p>The current demo account record is kept in the browser’s local storage on the device where the account is created. It includes the entered password in plain text. This can be accessible to scripts running in the same site origin and to someone with access to the browser profile. It is not a secure production account store.</p>
-        <p><strong>Do not enter real credentials or sensitive personal information into the current demo.</strong> StrongHaul should replace this storage with an appropriately secured authentication and data service, remove plaintext password handling, review access controls, and assess application security before collecting real user information.</p>
-        <p>No server-side user database or API endpoint was found in the inspected project. StrongHaul must still confirm production hosting safeguards, backups, logs, access controls, incident response and any processor agreements. No security measure can be described as a guarantee.</p>
+        <p>The authentication backend stores account profile information, Argon2 password hashes and refresh-session records. Raw refresh tokens are held in HttpOnly cookies and only their hashes are stored in the database. Access tokens are kept in frontend memory. These controls describe the code, not an assurance that the production deployment is secure.</p>
+        <p>The backend uses SQLite by default for local development. Its production settings require a shared database and shared rate-limit storage, but production settings, hosting safeguards, backups, logs, access controls, incident response and processor agreements have not been verified. No security measure can be described as a guarantee.</p>
       </>
     ),
   },
@@ -152,7 +151,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Data Retention and Deletion',
     content: (
       <>
-        <p>The demo account record remains in browser local storage until it is cleared by the user or browser. The current interface does not provide a working account deletion or local-data removal control. Clearing this site’s local storage/browser site data removes the demo record from that browser, but does not remove unrelated browser, hosting or third-party records.</p>
+        <p>Account and refresh-session records are stored in the configured backend database. Refresh sessions have an expiry (14 days by default) and a revocation timestamp. No account-deletion endpoint or cleanup job for expired session rows was found, so account deletion handling and database retention periods need to be established. Local storage from the previous demo auth flow is cleared when the frontend auth provider initializes.</p>
         <p>Form inputs that are only validated in component state are not stored by the app and generally disappear when the page is left or reloaded. Geolocation coordinates are used transiently in browser code and are not persisted by the app. Actual infrastructure log retention is not known.</p>
         <p>For production, StrongHaul should set and document retention periods by data type, delete or de-identify information when no longer needed, and retain information longer only where required or permitted by law.</p>
       </>
@@ -163,7 +162,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'International Data Transfers',
     content: (
       <>
-        <p>The application has no configured user-data backend, so this code does not establish where server-side account or rental records would be stored. Direct requests for remote images and the eventual hosting/CDN environment may be handled outside Ghana; the relevant providers and processing locations have not been confirmed.</p>
+        <p>Account data is sent to the authentication backend configured for the frontend. The code does not identify the production backend host or the physical location of its database. Direct requests for remote images and the eventual hosting/CDN environment may be handled outside Ghana; the relevant providers and processing locations have not been confirmed.</p>
         <p>Before production launch, StrongHaul should identify all processing locations and recipients, assess cross-border transfer requirements under Act 843 and other applicable law, and implement any required safeguards, notices and agreements. StrongHaul’s initial focus on Ghana does not establish that all data remains in Ghana.</p>
       </>
     ),
@@ -174,7 +173,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     content: (
       <>
         <p>Subject to applicable law, including Ghana’s Data Protection Act, 2012 (Act 843), you may have rights to request access to personal information, ask for inaccurate information to be corrected, request deletion where legally applicable, raise concerns about processing and withdraw consent where consent is the relevant lawful basis.</p>
-        <p>The current demo has no verified privacy-request channel or server-side account database. For demo account data stored in your browser, clear the site’s local storage; this is not a substitute for a production data-subject request process. StrongHaul must publish a verified method for submitting access, correction, deletion and objection requests before launch and explain how requests will be verified and answered.</p>
+        <p>The authentication backend stores account information, but no account profile update/deletion endpoint or verified privacy-request channel is implemented. StrongHaul must publish a verified method for submitting access, correction, deletion and objection requests before launch and explain how requests will be verified and answered.</p>
         <p>You may also raise a complaint with Ghana’s Data Protection Commission through its current official channels. StrongHaul’s registration status with the Commission has not been verified and is not represented here.</p>
       </>
     ),
@@ -194,7 +193,7 @@ const privacySections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Marketing and Notifications',
     content: (
       <>
-        <p>Renter registration includes an optional marketing-consent checkbox that is unchecked by default. In the demo, the selected value is saved only in the local browser account record; no promotional messages are sent. There is no configured email, SMS, push-notification or notification-delivery provider identified in the application.</p>
+        <p>Renter registration includes an optional marketing-consent checkbox that is unchecked by default. The selection is stored in the backend account profile, but no promotional messages are sent and no email, SMS, push-notification or notification-delivery provider is configured.</p>
         <p>If StrongHaul later sends marketing communications, it should do so only with an appropriate legal basis and required consent, explain how to opt out, and honor withdrawal or objection requests. Transactional or service notifications should be separately described and implemented before being promised.</p>
       </>
     ),
@@ -267,11 +266,11 @@ export function PrivacyPage() {
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-primary sm:text-5xl">Privacy Policy</h1>
           <p className="mt-4 text-sm text-muted-foreground">Last updated: {lastUpdated}</p>
           <p className="mt-5 max-w-3xl border-l-2 border-warning bg-warning/10 px-4 py-3 text-sm leading-6 text-foreground">
-            This notice describes the current frontend demo, not a completed production data system. It requires review by a qualified Ghanaian privacy lawyer and confirmation against live hosting and backend practices before public launch.
+            Authentication is connected to the backend, but listing, enquiry, booking and support flows remain frontend prototypes. This policy requires review by a qualified Ghanaian privacy lawyer and confirmation against live hosting and backend practices before public launch.
           </p>
           <div className="mt-4 flex max-w-3xl items-start gap-3 border border-destructive/25 bg-destructive/5 p-4 text-sm leading-6 text-foreground">
             <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
-            <p><strong>Demo security warning:</strong> registration currently stores the entered password in plain text in browser local storage. Do not use real credentials or sensitive personal information in this demo. Secure authentication and storage must replace this before launch.</p>
+            <p><strong>Deployment warning:</strong> the backend hashes passwords with Argon2, but production security depends on HTTPS, secure cookie configuration, database controls and the deployed environment. Those production controls have not been independently verified.</p>
           </div>
         </div>
       </header>

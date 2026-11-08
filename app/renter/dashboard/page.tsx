@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { Bell, ClipboardList, Heart, PackageSearch, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/auth/auth-provider';
 
 const stats = [
   { label: 'Saved listings', value: '12', detail: 'Across 4 categories' },
@@ -16,12 +19,15 @@ const quickActions = [
 ];
 
 export default function RenterDashboardPage() {
+  const { user } = useAuth();
+  const firstName = user?.full_name.trim().split(/\s+/)[0] || 'there';
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">Renter dashboard</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-primary">Welcome back, Kofi</h1>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-primary">Welcome back, {firstName}</h1>
         </div>
         <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
           <Link href="/browse">Search equipment</Link>

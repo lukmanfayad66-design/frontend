@@ -22,9 +22,9 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Cookies Currently Used',
     content: (
       <>
-        <p>During a local check, a response from a Pexels-hosted image returned a third-party Cloudflare <code>__cf_bm</code> cookie. The response marked it HttpOnly, Secure and Partitioned. Cloudflare describes <code>__cf_bm</code> as a bot-management cookie used by its bot-protection products and necessary for those products to function.</p>
-        <p>This cookie is set by the third-party image-delivery service, not by StrongHaul, and StrongHaul does not use it for its own analytics. The StrongHaul frontend does not read or control it. Whether a browser accepts or sends a third-party cookie depends on browser privacy settings and the delivery context. No expiry or retention period is stated here because StrongHaul has not independently confirmed one for the observed Pexels configuration.</p>
-        <p>The check covered the current local frontend and an image-host response. The production domain and deployed provider configuration still need verification.</p>
+        <p>When a user signs in, StrongHaul’s authentication backend sets two cookies: <code>refresh_token</code> and <code>csrf_token</code>. The refresh cookie is HttpOnly; the CSRF cookie is readable by the browser and is used to submit the CSRF header for refresh and logout requests. Both use SameSite=Strict and the <code>/auth</code> path. The configured lifetime defaults to 14 days. The Secure attribute depends on configuration; production settings require Secure cookies. The access token is held in frontend memory, not in a cookie.</p>
+        <p>A Pexels-hosted image response was also observed setting the third-party Cloudflare <code>__cf_bm</code> cookie. The response marked it HttpOnly, Secure and Partitioned. Cloudflare describes it as necessary for its bot-protection products. It is not StrongHaul analytics and is controlled by the third-party service. No expiry or retention period is stated because StrongHaul has not independently confirmed one for the observed provider configuration.</p>
+        <p>Cookie behavior depends on the browser and deployment. The checks covered local development and a remote image response; production hostnames, secure settings and provider configuration still need verification.</p>
       </>
     ),
   },
@@ -33,8 +33,8 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'First-Party Cookies',
     content: (
       <>
-        <p>Local inspection found no first-party cookies set by the StrongHaul website origin: the local response did not include a <code>Set-Cookie</code> header, and the browser’s script-visible cookie string was empty during the check.</p>
-        <p>The frontend does use browser local storage for demo account state. Local storage is not a cookie. The live production origin, server responses and any future authentication service must be checked separately before launch.</p>
+        <p>The StrongHaul authentication API sets the <code>refresh_token</code> and <code>csrf_token</code> cookies described above after sign-in. They are scoped to the API host and <code>/auth</code> path. In a same-site deployment they support account sessions and CSRF protection. The local frontend page itself did not set a cookie in the tested response; that does not mean the backend authentication cookies are absent.</p>
+        <p>The old frontend demo account value in local storage is removed when the auth provider initializes. Local storage is not a cookie. Production domains and responses must still be checked to verify cookie scope and flags.</p>
       </>
     ),
   },
@@ -43,7 +43,7 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Analytics Cookies',
     content: (
       <>
-        <p>StrongHaul does not currently have an implemented analytics-cookie system. No analytics tags, analytics-cookie code or analytics packages were found in the frontend inspection. The observed <code>__cf_bm</code> cookie is associated with third-party bot management, not StrongHaul analytics.</p>
+        <p>StrongHaul does not currently have an implemented analytics-cookie system. No analytics tags, analytics-cookie code or analytics packages were found in the frontend inspection. The observed <code>__cf_bm</code> cookie is associated with third-party bot management, and the authentication cookies support session security; neither is StrongHaul analytics.</p>
         <p>StrongHaul plans a custom analytics system inside the platform for administrator use, but it is not implemented. Administrator-only access does not by itself mean that analytics information is not personal data or remove applicable legal obligations. Before implementation, StrongHaul should assess the data collected, access, purposes, lawful basis, minimisation and whether any cookie or consent control is required.</p>
       </>
     ),
@@ -63,8 +63,8 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Managing Cookies',
     content: (
       <>
-        <p>You can usually review, delete or block cookies through your browser’s privacy or site-settings controls. Browser help pages explain how to manage cookies for that browser and device. Blocking third-party cookies may affect content or services delivered by external providers.</p>
-        <p>StrongHaul does not currently provide a consent-management interface or cookie-preference panel. This policy does not promise controls that are not implemented. Whether consent or additional controls are legally required for the deployed services should be confirmed for applicable jurisdictions before launch.</p>
+        <p>You can usually review, delete or block cookies through your browser’s privacy or site-settings controls. Blocking or deleting the StrongHaul authentication cookies will prevent refresh-session restoration and may sign you out. Blocking third-party cookies may affect content or services delivered by external providers.</p>
+        <p>StrongHaul does not currently provide a consent-management interface or cookie-preference panel. No non-essential analytics or advertising cookies were identified in the frontend. Whether additional consent controls are legally required for the deployed services should be confirmed for applicable jurisdictions before launch.</p>
       </>
     ),
   },
@@ -73,7 +73,7 @@ const cookieSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Future Changes',
     content: (
       <>
-        <p>Cookie practices may change when authentication, backend services, hosting configuration or the planned custom analytics system is introduced. StrongHaul will review the actual technologies and purposes, determine whether they involve personal data or non-essential cookies, and update this policy to describe implemented changes.</p>
+        <p>Cookie practices may change as authentication, backend services or hosting configuration evolve, or if the planned custom analytics system is implemented. StrongHaul will review the actual technologies and purposes, determine whether they involve personal data or non-essential cookies, and update this policy to describe implemented changes.</p>
         <p>If future technologies require consent or other user controls under applicable law, StrongHaul should implement appropriate controls before enabling them. Planned functionality is not described as an existing feature in this policy.</p>
       </>
     ),
@@ -140,7 +140,7 @@ export function CookiePolicyPage() {
           </p>
           <p className="mt-4 flex max-w-3xl items-start gap-3 border border-border bg-background p-4 text-sm leading-6 text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
-            No StrongHaul first-party cookies, analytics tags or advertising trackers were found in the current frontend. No consent popup is shown for appearance alone.
+            Authentication cookies are used for session refresh and CSRF protection. No analytics tags or advertising trackers were found in the current frontend, and no consent popup is shown for appearance alone.
           </p>
         </div>
       </header>

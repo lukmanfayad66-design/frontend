@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Bell,
   BookOpen,
@@ -24,6 +24,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/components/auth/auth-provider';
 import { DashboardProvider, useDashboard } from './dashboard-context';
 
 type DashboardNavItem = {
@@ -84,10 +85,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
 function DashboardFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { unreadCount } = useDashboard();
+  const { user, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [signOutError, setSignOutError] = useState('');
+  const displayName = user?.full_name.trim() || user?.email || 'Equipment owner';
+  const initials = displayName.split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('');
 
   useEffect(() => {
     setPendingHref(null);
@@ -96,6 +102,18 @@ function DashboardFrame({ children }: { children: ReactNode }) {
   function handleNavigation(href: string) {
     setMobileOpen(false);
     if (pathname !== href) setPendingHref(href);
+  }
+
+  async function handleSignOut() {
+    setPendingHref('/login');
+    setSignOutError('');
+    try {
+      await signOut();
+      router.replace('/login');
+    } catch {
+      setSignOutError('Could not reach the authentication service. Try signing out again.');
+      setPendingHref(null);
+    }
   }
 
   const sidebar = (
@@ -147,16 +165,17 @@ function DashboardFrame({ children }: { children: ReactNode }) {
         ))}
       </nav>
       <div className="border-t border-primary-foreground/10 p-3">
-        <Link
-          href="/login"
-          onClick={() => handleNavigation('/login')}
-          aria-disabled={pendingHref === '/login'}
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={pendingHref === '/login'}
           title={collapsed ? 'Sign Out' : undefined}
-          className={cn('flex min-h-10 items-center gap-3 rounded-md px-3 text-sm text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground', collapsed && 'justify-center px-0', pendingHref === '/login' && 'pointer-events-none opacity-70')}
+          className={cn('flex min-h-10 w-full items-center gap-3 rounded-md px-3 text-left text-sm text-primary-foreground/75 hover:bg-primary-foreground/10 hover:text-primary-foreground disabled:opacity-70', collapsed && 'justify-center px-0')}
         >
           {pendingHref === '/login' ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> : <LogOut className="h-4 w-4 shrink-0" />}
           {!collapsed && 'Sign Out'}
-        </Link>
+        </button>
+        {signOutError && !collapsed && <p role="alert" className="px-3 pt-2 text-xs leading-5 text-destructive-foreground">{signOutError}</p>}
       </div>
     </div>
   );
@@ -195,9 +214,9 @@ function DashboardFrame({ children }: { children: ReactNode }) {
               {unreadCount > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent ring-2 ring-card" />}
             </Link>
             <div className="flex items-center gap-2 border-l border-border pl-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-xs font-bold text-primary">KA</div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-xs font-bold text-primary">{initials}</div>
               <div className="hidden sm:block">
-                <p className="text-sm font-semibold leading-4 text-primary">Kofi Asare</p>
+                <p className="max-w-40 truncate text-sm font-semibold leading-4 text-primary">{displayName}</p>
                 <p className="mt-1 text-xs text-muted-foreground">Equipment owner</p>
               </div>
             </div>
