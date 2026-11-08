@@ -229,8 +229,8 @@ const termsSections: { id: string; title: string; content: ReactNode }[] = [
     title: 'Privacy and Cookies',
     content: (
       <>
-        <p>Personal information should be handled in accordance with applicable privacy laws and the notices StrongHaul publishes for its services. The Privacy Policy and Cookie Policy pages are not currently available in this application, so these Terms do not replace those policies or provide a complete account of data practices.</p>
-        <p>Do not submit sensitive personal information unless the relevant service explains how it will be handled. StrongHaul should publish its Privacy Policy and Cookie Policy before public launch and make them available from this page and the site footer.</p>
+        <p>Personal information is addressed in the <Link href="/privacy" className="font-semibold text-accent underline underline-offset-4 hover:text-primary">StrongHaul Privacy Policy</Link>. A separate Cookie Policy is not currently available in this application.</p>
+        <p>Do not submit sensitive personal information unless the relevant service explains how it will be handled. StrongHaul should publish a Cookie Policy if cookies or similar technologies are introduced and make it available from this page and the site footer.</p>
       </>
     ),
   },

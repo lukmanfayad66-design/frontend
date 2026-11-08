@@ -91,6 +91,9 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Stronghaul. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-primary-foreground/60">
+            <Link href="/privacy" className="transition-colors hover:text-accent">
+              Privacy
+            </Link>
             <Link href="/terms" className="transition-colors hover:text-accent">
               Terms
             </Link>
