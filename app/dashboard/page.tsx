@@ -25,8 +25,8 @@ export default function DashboardOverviewPage() {
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-primary">Kofi, here is your equipment performance</h1>
         </div>
         <Button asChild className="h-11 bg-accent text-accent-foreground hover:bg-accent/90">
-          <Link href="/dashboard/list-equipment">
-            List Equipment <ArrowRight className="ml-2 h-4 w-4" />
+          <Link href="/browse">
+            View listings <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>

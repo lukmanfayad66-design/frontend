@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { label: 'Browse', href: '/browse' },
   { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'List Equipment', href: '/signup' },
+  { label: 'List Equipment', href: '/login?redirect=%2Fdashboard%2Flist-equipment' },
   { label: 'Pricing', href: '/pricing' },
 ];
 
@@ -48,7 +48,7 @@ export function Navbar() {
             <Link href="/login">Sign In</Link>
           </Button>
           <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link href="/signup">Get Started</Link>
+            <Link href="/register">Get Started</Link>
           </Button>
         </div>
 
@@ -88,7 +88,7 @@ export function Navbar() {
               size="sm"
               className="w-full justify-center bg-accent text-accent-foreground hover:bg-accent/90"
             >
-              <Link href="/signup" onClick={() => setOpen(false)}>Get Started</Link>
+              <Link href="/register" onClick={() => setOpen(false)}>Get Started</Link>
             </Button>
           </div>
         </div>

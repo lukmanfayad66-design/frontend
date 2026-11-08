@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Search, MapPin, CheckCircle2, Wrench, Users, TrendingUp } from 'lucide-react';
+import { Search, MapPin, CheckCircle2, Wrench, Users, TrendingUp, LocateFixed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { EquipmentCategory } from '@/types';
 import { fadeInUp, staggerContainer, transition } from '@/lib/animations';
+import { findNearestGhanaCity, ghanaCities } from '@/lib/ghana-cities';
 
 const categories: (EquipmentCategory | 'All')[] = [
   'All',
@@ -37,8 +39,39 @@ const stats = [
 ];
 
 export function HeroSection() {
-  const [location, setLocation] = useState('');
+  const router = useRouter();
+  const [city, setCity] = useState('all');
   const [category, setCategory] = useState<string>('All');
+  const [locationStatus, setLocationStatus] = useState('Detecting your city...');
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationStatus('Choose your city');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const detectedCity = findNearestGhanaCity(coords.latitude, coords.longitude);
+        if (detectedCity) {
+          setCity(detectedCity);
+          setLocationStatus(`Showing equipment near ${detectedCity}`);
+        } else {
+          setLocationStatus('Choose a Ghana city to find equipment');
+        }
+      },
+      () => setLocationStatus('Choose your city or allow location access'),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  }, []);
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const params = new URLSearchParams();
+    if (city !== 'all') params.set('city', city);
+    if (category !== 'All') params.set('category', category);
+    router.push(`/browse${params.size ? `?${params.toString()}` : ''}`);
+  }
 
   return (
     <section className="relative overflow-hidden bg-primary">
@@ -86,24 +119,32 @@ export function HeroSection() {
             every booking.
           </motion.p>
 
-          <motion.div
+          <motion.form
+            onSubmit={handleSearch}
             variants={fadeInUp}
             transition={transition}
             className="mx-auto mt-10 max-w-4xl rounded-2xl bg-card p-4 text-left shadow-2xl sm:p-5"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Enter city or ZIP code"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="h-12 border-border pl-10 text-base"
-                />
+              <div className="min-w-0 flex-[1.2]">
+                <Select value={city} onValueChange={(value) => {
+                  setCity(value);
+                  setLocationStatus(value === 'all' ? 'Showing equipment across Ghana' : `Showing equipment near ${value}`);
+                }}>
+                  <SelectTrigger aria-label="Choose a city" className="h-12 border-border text-base">
+                    <MapPin className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <SelectValue placeholder="Choose your city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All cities</SelectItem>
+                    {ghanaCities.map(({ name }) => (
+                      <SelectItem key={name} value={name}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="h-12 border-border text-base">
                     <SelectValue placeholder="Equipment type" />
@@ -119,31 +160,34 @@ export function HeroSection() {
               </div>
 
               <Button
+                type="submit"
                 size="lg"
-                className="h-12 justify-center bg-accent px-8 text-base font-semibold text-accent-foreground hover:bg-accent/90 sm:px-10"
+                className="h-12 justify-center bg-accent px-6 text-base font-semibold text-accent-foreground hover:bg-accent/90 sm:px-8"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Search
               </Button>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2 px-1">
-              <span className="text-xs font-medium text-muted-foreground">
-                Popular:
-              </span>
-              {['Excavators', 'Dump Trucks', 'Logistics Trucks', 'Skid Steers'].map(
-                (tag) => (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 px-1">
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground" aria-live="polite">
+                <LocateFixed className="h-3.5 w-3.5" /> {locationStatus}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground">Popular:</span>
+                {['Excavators', 'Dump Trucks', 'Logistics Trucks', 'Skid Steers'].map((tag) => (
                   <button
                     key={tag}
+                    type="button"
                     onClick={() => setCategory(tag as EquipmentCategory)}
                     className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent"
                   >
                     {tag}
                   </button>
-                )
-              )}
+                ))}
+              </div>
             </div>
-          </motion.div>
+          </motion.form>
         </motion.div>
       </div>
 

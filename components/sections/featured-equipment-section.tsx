@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,11 +33,14 @@ export function FeaturedEquipmentSection({ listings }: Props) {
           </motion.div>
           <motion.div variants={fadeInUp} transition={transition}>
             <Button
+              asChild
               variant="outline"
               className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
             >
-              View all listings
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <Link href="/browse">
+                View all listings
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </motion.div>
         </motion.div>

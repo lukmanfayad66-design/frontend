@@ -1,6 +1,6 @@
 'use client';
 
-import { useDeferredValue, useState, useMemo } from 'react';
+import { useDeferredValue, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -26,6 +26,7 @@ import {
 import type { EquipmentCategory, Listing } from '@/types';
 import { allListings } from '@/lib/listings';
 import { fadeInUp, fadeInDown, staggerContainer, transition } from '@/lib/animations';
+import { ghanaCities } from '@/lib/ghana-cities';
 
 const allCategories: EquipmentCategory[] = [
   'Excavators',
@@ -47,12 +48,26 @@ const statusOptions = [
 export default function BrowsePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<EquipmentCategory[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['available']);
   const [maxDailyRate, setMaxDailyRate] = useState(2500);
   const [sortBy, setSortBy] = useState('distance');
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const isFiltering = deferredSearchQuery !== searchQuery;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const city = params.get('city');
+    const category = params.get('category');
+
+    if (city && ghanaCities.some((item) => item.name === city)) {
+      setSelectedCity(city);
+    }
+    if (category && allCategories.includes(category as EquipmentCategory)) {
+      setSelectedCategories([category as EquipmentCategory]);
+    }
+  }, []);
 
   const filtered = useMemo(() => {
     let results = allListings.filter((l) => {
@@ -65,6 +80,8 @@ export default function BrowsePage() {
         )
           return false;
       }
+      if (selectedCity && !l.location.toLowerCase().includes(selectedCity.toLowerCase()))
+        return false;
       if (selectedCategories.length > 0 && !selectedCategories.includes(l.category))
         return false;
       if (selectedStatuses.length > 0 && !selectedStatuses.includes(l.status))
@@ -88,7 +105,7 @@ export default function BrowsePage() {
     });
 
     return results;
-  }, [deferredSearchQuery, selectedCategories, selectedStatuses, maxDailyRate, sortBy]);
+  }, [deferredSearchQuery, selectedCity, selectedCategories, selectedStatuses, maxDailyRate, sortBy]);
 
   const toggleCategory = (cat: EquipmentCategory) => {
     setSelectedCategories((prev) =>
@@ -104,6 +121,7 @@ export default function BrowsePage() {
 
   const clearAll = () => {
     setSearchQuery('');
+    setSelectedCity('');
     setSelectedCategories([]);
     setSelectedStatuses(['available']);
     setMaxDailyRate(2500);
@@ -117,7 +135,7 @@ export default function BrowsePage() {
           Browse Equipment
         </h1>
         <p className="mt-1 text-muted-foreground">
-          {isFiltering && <LoaderCircle className="mr-2 inline h-4 w-4 animate-spin text-accent" aria-label="Updating results" />} {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'} available
+          {isFiltering && <LoaderCircle className="mr-2 inline h-4 w-4 animate-spin text-accent" aria-label="Updating results" />} {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'} available{selectedCity ? ` near ${selectedCity}` : ''}
         </p>
       </div>
 
@@ -253,8 +271,16 @@ export default function BrowsePage() {
       </AnimatePresence>
 
       {/* Active filter chips */}
-      {(selectedCategories.length > 0 || searchQuery) && (
+      {(selectedCategories.length > 0 || searchQuery || selectedCity) && (
         <div className="mb-6 flex flex-wrap items-center gap-2">
+          {selectedCity && (
+            <Badge variant="secondary" className="gap-1">
+              Near {selectedCity}
+              <button onClick={() => setSelectedCity('')} aria-label={`Remove ${selectedCity} city filter`}>
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
           {searchQuery && (
             <Badge variant="secondary" className="gap-1">
               &ldquo;{searchQuery}&rdquo;
@@ -279,7 +305,9 @@ export default function BrowsePage() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20">
           <p className="text-lg font-medium text-foreground">No results found</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Try adjusting your filters or search query.
+            {selectedCity
+              ? `There are no demo listings tagged to ${selectedCity} yet. Try another city or clear the location filter.`
+              : 'Try adjusting your filters or search query.'}
           </p>
           <Button variant="outline" onClick={clearAll} disabled={isFiltering} className="mt-4">
             {isFiltering ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Updating filters...</> : 'Clear all filters'}

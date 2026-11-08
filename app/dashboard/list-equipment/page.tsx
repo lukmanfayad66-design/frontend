@@ -34,7 +34,7 @@ export default function ListEquipmentPage() {
           </Link>
         </Button>
         <Button asChild variant="outline" className="h-11 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-          <Link href="/signup">Continue to account setup</Link>
+          <Link href="/register">Continue to account setup</Link>
         </Button>
       </div>
     </div>
