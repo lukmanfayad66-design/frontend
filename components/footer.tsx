@@ -24,7 +24,6 @@ const footerSections = [
     links: [
       { label: 'Help Center', href: '/help' },
       { label: 'Safety', href: '/safety' },
-      { label: 'Insurance', href: '/insurance' },
       { label: 'Terms of Service', href: '/terms' },
     ],
   },
